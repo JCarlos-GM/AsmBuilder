@@ -101,6 +101,9 @@ public class TemplateBuilder {
         if (options.isUpper())      return buildUpperBody();
         if (options.isInput())      return buildInputBody();
         if (options.isRect())       return buildRectBody();
+        if (options.isDiagonal())   return buildDiagonalBody();
+        if (options.isRectSwap())   return buildRectSwapBody();
+        if (options.isAlphabet())   return buildAlphabetBody();
         return l1("; Coloca aqui tu codigo") + NL;
     }
 
@@ -313,5 +316,87 @@ public class TemplateBuilder {
              + l1("mov ch, 05") + l1("mov cl, 05")
              + l1("mov dh, 15") + l1("mov dl, 25")
              + l1("int 10h") + NL;
+    }
+
+    private String buildDiagonalBody() {
+        return l1("; Limpiar pantalla a negro")
+             + l1("mov ah, 06h") + l1("mov al, 00h") + l1("mov bh, 00h")
+             + l1("mov cx, 0000h") + l1("mov dx, 184fh") + l1("int 10h") + NL
+             + l1("; Posicion inicial")
+             + l1("mov dh, 00h")
+             + l1("mov dl, 00h")
+             + l1("mov cx, 14h") + NL
+             + l1("ciclo:")
+             + l2("inc dh")
+             + l2("inc dl") + NL
+             + l2("push cx")
+             + l2("push dx") + NL
+             + l2("; Mover cursor")
+             + l2("mov ah, 02h") + l2("mov bh, 00h") + l2("int 10h") + NL
+             + l2("; Imprimir caracter con color amarillo en la posicion actual")
+             + l2("mov ah, 09h") + l2("mov al, 0dbh")
+             + l2("mov bh, 00h") + l2("mov bl, 0eh")
+             + l2("mov cx, 01h") + l2("int 10h") + NL
+             + l2("; Delay")
+             + l2("mov ah, 86h") + l2("mov cx, 0007h") + l2("mov dx, 0a120h") + l2("int 15h") + NL
+             + l2("pop dx")
+             + l2("pop cx")
+             + l2("dec cx")
+             + l2("jnz ciclo") + NL;
+    }
+
+    private String buildRectSwapBody() {
+        return l1("; Limpiar pantalla")
+             + l1("mov ah, 06h") + l1("mov al, 00h") + l1("mov bh, 07h")
+             + l1("mov cx, 0000h") + l1("mov dx, 184fh") + l1("int 10h") + NL
+             + l1("mov cx, 0fh") + NL
+             + l1("ciclo:")
+             + l2("push cx") + NL
+             + l2("; Primer rectangulo rojo")
+             + l2("mov ah, 06h") + l2("mov al, 00h") + l2("mov bh, 40h")
+             + l2("mov ch, 05h") + l2("mov cl, 05h")
+             + l2("mov dh, 15h") + l2("mov dl, 25h") + l2("int 10h") + NL
+             + l2("; Segundo rectangulo blanco")
+             + l2("mov ah, 06h") + l2("mov al, 00h") + l2("mov bh, 0f0h")
+             + l2("mov ch, 05h") + l2("mov cl, 35h")
+             + l2("mov dh, 15h") + l2("mov dl, 55h") + l2("int 10h") + NL
+             + l2("; Delay")
+             + l2("mov ah, 86h") + l2("mov cx, 0007h") + l2("mov dx, 0a120h") + l2("int 15h") + NL
+             + l2("; Intercambiar colores")
+             + l2("mov ah, 06h") + l2("mov al, 00h") + l2("mov bh, 0f0h")
+             + l2("mov ch, 05h") + l2("mov cl, 05h")
+             + l2("mov dh, 15h") + l2("mov dl, 25h") + l2("int 10h") + NL
+             + l2("mov ah, 06h") + l2("mov al, 00h") + l2("mov bh, 40h")
+             + l2("mov ch, 05h") + l2("mov cl, 35h")
+             + l2("mov dh, 15h") + l2("mov dl, 55h") + l2("int 10h") + NL
+             + l2("; Delay")
+             + l2("mov ah, 86h") + l2("mov cx, 0007h") + l2("mov dx, 0a120h") + l2("int 15h") + NL
+             + l2("pop cx")
+             + l2("loop ciclo") + NL;
+    }
+
+    private String buildAlphabetBody() {
+        return l1("; Imprimir el abecedario letra por letra con delay")
+             + l1("mov al, 'A'")
+             + l1("mov cx, 1ah") + NL
+             + l1("ciclo:")
+             + l2("push cx")
+             + l2("push ax") + NL
+             + l2("; Imprimir letra")
+             + l2("mov dl, al")
+             + l2("mov ah, 02h")
+             + l2("int 21h") + NL
+             + l2("; Salto de linea (CR + LF)")
+             + l2("mov dl, 0dh") + l2("int 21h")
+             + l2("mov dl, 0ah") + l2("int 21h") + NL
+             + l2("; Delay")
+             + l2("mov ah, 86h")
+             + l2("mov cx, 000fh")
+             + l2("mov dx, 4240h")
+             + l2("int 15h") + NL
+             + l2("pop ax")
+             + l2("inc al")
+             + l2("pop cx")
+             + l2("loop ciclo") + NL;
     }
 }

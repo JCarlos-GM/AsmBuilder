@@ -28,7 +28,10 @@ public class Options {
     private boolean string  = false;
     private boolean upper   = false;
     private boolean input   = false;
-    private boolean rect    = false;
+    private boolean rect     = false;
+    private boolean diagonal = false;
+    private boolean rectSwap = false;
+    private boolean alphabet = false;
 
     public String getFileName()                   { return fileName; }
     public void   setFileName(String n)           { this.fileName = n; }
@@ -89,4 +92,13 @@ public class Options {
 
     public boolean isRect()                 { return rect; }
     public void    setRect(boolean v)       { this.rect = v; }
+
+    public boolean isDiagonal()             { return diagonal; }
+    public void    setDiagonal(boolean v)   { this.diagonal = v; }
+
+    public boolean isRectSwap()             { return rectSwap; }
+    public void    setRectSwap(boolean v)   { this.rectSwap = v; }
+
+    public boolean isAlphabet()             { return alphabet; }
+    public void    setAlphabet(boolean v)   { this.alphabet = v; }
 }

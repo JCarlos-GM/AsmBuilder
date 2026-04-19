@@ -50,6 +50,9 @@ public class ArgParser {
                 case "--upper":     options.setUpper(true);      break;
                 case "--input":     options.setInput(true);      break;
                 case "--rect":      options.setRect(true);       break;
+                case "--diagonal":  options.setDiagonal(true);   break;
+                case "--rectswap":  options.setRectSwap(true);   break;
+                case "--abc":       options.setAlphabet(true);   break;
                 default:
                     System.out.println("Opcion desconocida: " + args[i]);
                     return null;

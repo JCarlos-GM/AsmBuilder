@@ -67,6 +67,9 @@ public class Main {
         System.out.println("  --upper     Recorrer cadena y convertir minusculas a mayusculas");
         System.out.println("  --input     Esperar a que el usuario presione una tecla (INT 21h)");
         System.out.println("  --rect      Dibujar rectangulo con color de fondo (INT 10h)");
+        System.out.println("  --diagonal  Mover el cursor en diagonal con delay en cada paso");
+        System.out.println("  --rectswap  Dos rectangulos que intercambian colores en un ciclo animado");
+        System.out.println("  --abc       Imprimir el abecedario letra por letra (INT 21h)");
         System.out.println("");
         System.out.println("  Combinaciones:");
         System.out.println("  --for --print        Ciclo que imprime en cada iteracion");

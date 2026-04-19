@@ -111,6 +111,9 @@ Codigo de video, entrada, pila y cadenas.
 | `--upper` | Recorre una cadena y convierte cada letra minuscula a mayuscula restando `20h` del ASCII. |
 | `--input` | Imprime un mensaje y espera a que el usuario presione una tecla con `INT 21h` servicio `0Bh`. |
 | `--rect` | Dibuja un rectangulo con color de fondo usando `INT 10h` servicio `06h`. |
+| `--diagonal` | Limpia la pantalla a negro y mueve el cursor en diagonal imprimiendo `█` en amarillo con delay en cada paso. |
+| `--rectswap` | Dos rectangulos (rojo y blanco) que intercambian colores en un ciclo animado de 15 repeticiones. |
+| `--abc` | Imprime el abecedario en mayusculas letra por letra, una por linea, con delay de 1 segundo entre cada una. |
 
 ---
 
