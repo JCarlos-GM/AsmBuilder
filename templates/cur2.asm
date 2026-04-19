@@ -1,0 +1,35 @@
+.MODEL SMALL
+
+.STACK 100h
+
+.DATA
+
+.CODE
+
+	; COLOCAR EL CURSOR AL CENTRO
+	; Pantalla tiene 25 renglones y 80 columnas
+	MOV AH, 02H		; SERVICIO
+	MOV BH, 00H		; PAGINA SIEMPRE 0
+	MOV DH, 12		; RENGLON (Centro = 12)
+	MOV DL, 40		; COLUMNA (Centro = 40)
+	INT 10H
+
+	; ESPERAR 3 SEGUNDOS
+	; Usamos el servicio 86H que espera en microsegundos (3 SEGUNDOS)
+	MOV AH, 86H
+	MOV CX, 002DH   ; Parte alta
+	MOV DX, 0C6C0H  ; Parte baja
+	INT 15H
+
+	; REGRESAR EL CURSOR AL INICIO
+	MOV AH, 02H		; SERVICIO
+	MOV BH, 00H		; PAGINA
+	MOV DH, 16H		; RENGLON 0 (Arriba)
+	MOV DL, 0		; COLUMNA 0 (Izquierda)
+	INT 10H
+
+	; TERMINAR/FIN/EXIT
+	MOV AH, 4CH
+	INT 21H
+
+END

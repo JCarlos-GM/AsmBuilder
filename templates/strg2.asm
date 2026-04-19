@@ -1,0 +1,33 @@
+.MODEL SMALL
+.STACK 100H
+.DATA
+    CAD DB 'hola'
+    BUSC DB 'a'
+
+.CODE
+    MOV AX,@DATA
+    MOV DS,AX
+
+    MOV SI,OFFSET CAD
+
+;--CICLO DESDE AQUI
+MOV CX,04
+    MOV BH,00H
+    MOV BL,0EH      ;07
+    MOV DH,05
+    MOV DL,COL
+
+CICLO1:
+    PUSH CX
+    ;POSICION
+    MOV AH,02H
+    INT 10H
+    INC COL
+    ;ESCRIBIR H
+    MOV AH,09H
+    MOV AL,[SI]
+    MOV CX,01H
+    INT 10H
+    INC SI
+    POP CX
+LOOP CICLO1

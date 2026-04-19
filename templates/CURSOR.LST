@@ -1,0 +1,40 @@
+0001   0000             .MODEL SMALL
+cursor.asm line 0001: unrecognized directive.            (.MODEL)
+0002   0000             .STACK 100H
+cursor.asm line 0002: unrecognized directive.            (.STACK)
+0003   0000             .DATA
+cursor.asm line 0003: unrecognized directive.            (.DATA)
+0004   0000             
+0005   0000             .CODE
+cursor.asm line 0005: unrecognized directive.            (.CODE)
+0006   0000             MAIN PROC
+cursor.asm line 0006: Label not found: (MAIN)
+cursor.asm line 0006: label value misalligned.           (MAIN)
+cursor.asm line 0006: unrecognized instruction.          (MAIN)
+0007   0000                 MOV AX, @DATA
+cursor.asm line 0007: unrecognized instruction.          (MOV)
+0008   0000                 MOV DS, AX
+cursor.asm line 0008: unrecognized instruction.          (MOV)
+0009   0000             
+0010   0000                 MOV AH, 01H
+cursor.asm line 0010: unrecognized instruction.          (MOV)
+0011   0000                 MOV CH, 04
+cursor.asm line 0011: unrecognized instruction.          (MOV)
+0012   0000                 MOV CL, 05
+cursor.asm line 0012: unrecognized instruction.          (MOV)
+0013   0000                 INT 10H
+cursor.asm line 0013: unrecognized instruction.          (INT)
+0014   0000             
+0015   0000                 MOV AH, 4CH
+cursor.asm line 0015: unrecognized instruction.          (MOV)
+0016   0000                 INT 21H
+cursor.asm line 0016: unrecognized instruction.          (INT)
+0017   0000             MAIN ENDP
+cursor.asm line 0017: Label not found: (MAIN)
+cursor.asm line 0017: label value misalligned.           (MAIN)
+cursor.asm line 0017: unrecognized instruction.          (MAIN)
+0018   0000             END MAINcursor.asm line 0018: Label not found: (END)
+cursor.asm line 0018: label value misalligned.           (END)
+cursor.asm line 0018: unrecognized instruction.          (END)
+tasm: line 0018 No END directive before EOF.       
+tasm: Number of errors = 22

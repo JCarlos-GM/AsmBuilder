@@ -1,0 +1,21 @@
+.MODEL SMALL
+
+.STACK 100h
+
+.DATA
+    MSG DB 'Nico y ', 13, 10
+    V1  DB 'La China <3$'
+
+.CODE
+MAIN PROC
+    MOV AX, @DATA
+    MOV DS, AX
+
+    MOV AH, 09H
+    MOV DX, OFFSET MSG
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+MAIN ENDP
+END MAIN
