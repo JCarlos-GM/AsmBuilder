@@ -72,6 +72,10 @@ public class TemplateBuilder {
             data.append(T1).append("msg db 'Presiona una tecla$'").append(NL);
         }
 
+        if (options.isArray()) {
+            data.append(T1).append("arr db 01h, 02h, 03h, 04h, 05h").append(NL);
+        }
+
         data.append(NL);
         return data.toString();
     }
@@ -80,7 +84,7 @@ public class TemplateBuilder {
     private boolean hasDataVars() {
         return options.isPrint() || options.isIfCond() || options.isSwitchCond()
             || options.isVars() || options.isString() || options.isUpper()
-            || options.isInput();
+            || options.isInput() || options.isArray();
     }
 
     // .code con inicializacion (si hay variables), cuerpo y salida
@@ -123,11 +127,13 @@ public class TemplateBuilder {
 
         // Templates individuales genericos
         if (options.isForLoop())    return buildForBody();
+        if (options.isWhileLoop())  return buildWhileBody();
         if (options.isDoWhile())    return buildDoWhileBody();
         if (options.isIfCond())     return buildIfBody();
         if (options.isSwitchCond()) return buildSwitchBody();
         if (options.isPrint())      return buildPrintBody();
         if (options.isVars())       return buildVarsBody();
+        if (options.isArray())      return buildArrayBody();
 
         // Templates individuales especificos
         if (options.isCursor())     return buildCursorBody();
@@ -183,6 +189,42 @@ public class TemplateBuilder {
         // dec + jnz es la forma de do-while: cuerpo primero, condicion al final
         sb.append(T2).append("dec cx").append(NL);
         sb.append(T2).append("jnz inicio").append(NL).append(NL);
+
+        return sb.toString();
+    }
+
+    // Ciclo WHILE: verifica la condicion antes de ejecutar el cuerpo
+    private String buildWhileBody() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(T1).append("mov cx, 0ah").append(NL).append(NL); // condicion inicial: 10
+
+        sb.append(T1).append("mientras:").append(NL);
+        sb.append(T2).append("cmp cx, 00h").append(NL);
+        sb.append(T2).append("jz  fin_mientras").append(NL).append(NL); // si cx es 0, salir
+
+        sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
+
+        sb.append(T2).append("dec cx").append(NL);
+        sb.append(T2).append("jmp mientras").append(NL).append(NL);
+
+        // fin_mientras es solo la etiqueta de salida, la salida del programa va despues
+        sb.append(T1).append("fin_mientras:").append(NL).append(NL);
+
+        return sb.toString();
+    }
+
+    // Arreglo con DUP en .data, recorrido con SI como puntero
+    private String buildArrayBody() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(T1).append("; Apuntar SI al inicio del arreglo").append(NL);
+        sb.append(T1).append("mov si, offset arr").append(NL);
+        sb.append(T1).append("mov cx, 05h").append(NL).append(NL); // 5 elementos
+
+        sb.append(T1).append("ciclo:").append(NL);
+        sb.append(T2).append("mov al, [si]").append(NL); // obtener elemento actual
+        sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
+        sb.append(T2).append("inc si").append(NL); // avanzar al siguiente elemento
+        sb.append(T2).append("loop ciclo").append(NL).append(NL);
 
         return sb.toString();
     }

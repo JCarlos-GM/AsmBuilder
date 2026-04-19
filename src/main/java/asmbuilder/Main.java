@@ -50,10 +50,12 @@ public class Main {
         System.out.println("  --empty     Estructura base sin codigo");
         System.out.println("  --print     Imprime un mensaje (INT 21h, servicio 09h)");
         System.out.println("  --for       Ciclo FOR con instruccion LOOP y CX como contador");
+        System.out.println("  --while     Ciclo WHILE: verifica condicion antes de ejecutar");
         System.out.println("  --dowhile   Ciclo DO-WHILE con DEC/JNZ");
         System.out.println("  --if        Condicional IF con CMP/JZ");
         System.out.println("  --switch    Switch con multiples CMP encadenados");
         System.out.println("  --vars      Variables en .data con ejemplos de acceso");
+        System.out.println("  --array     Arreglo en .data recorrido con SI como puntero");
         System.out.println("");
         System.out.println("--- Especificos ---");
         System.out.println("  --cursor    Posicionar el cursor en fila/columna (INT 10h)");

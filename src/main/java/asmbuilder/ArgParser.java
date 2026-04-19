@@ -28,6 +28,8 @@ public class ArgParser {
                 case "--if":        options.setIfCond(true);     break;
                 case "--switch":    options.setSwitchCond(true); break;
                 case "--vars":      options.setVars(true);       break;
+                case "--while":     options.setWhileLoop(true);  break;
+                case "--array":     options.setArray(true);      break;
                 case "--cursor":    options.setCursor(true);     break;
                 case "--screen":    options.setScreen(true);     break;
                 case "--color":     options.setColor(true);      break;

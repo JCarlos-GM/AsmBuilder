@@ -32,10 +32,12 @@ Estructura y logica basica del programa.
 | `--empty` | Estructura base sin codigo. Solo `.data`, `.code` y salida del programa. |
 | `--print` | Declara `msg` en `.data` e imprime con `INT 21h` servicio `09h`. |
 | `--for` | Ciclo FOR con la instruccion `loop`. Usa `cx` como contador (10 repeticiones). |
+| `--while` | Ciclo WHILE: verifica `cx` contra `00h` antes de ejecutar. Si la condicion no se cumple, salta a `fin_mientras`. |
 | `--dowhile` | Ciclo DO-WHILE con `dec cx` + `jnz`. El cuerpo corre al menos una vez antes de verificar. |
 | `--if` | Condicional `if/else` con `cmp` y saltos `jz`/`jmp`. Incluye variable `opc` para la condicion. |
 | `--switch` | Switch con multiples `cmp` encadenados. Tres opciones, cada una con su mensaje. |
 | `--vars` | Declara `numero`, `mensaje` y `bandera` en `.data` con ejemplo de carga y modificacion. |
+| `--array` | Declara `arr` con 5 elementos en `.data` y los recorre con `SI` como puntero, elemento en `AL`. |
 
 ---
 
@@ -109,6 +111,16 @@ Switch de tres opciones con `cmp` encadenados. Imprime un mensaje distinto segun
 asmb new hola --template --vars
 ```
 Variables `numero`, `mensaje` y `bandera` en `.data` con ejemplo de acceso.
+
+```
+asmb new hola --template --while
+```
+Ciclo que verifica `cx` al inicio. Si `cx` es `00h` salta a `fin_mientras`, si no ejecuta el cuerpo, decrementa y repite.
+
+```
+asmb new hola --template --array
+```
+Declara `arr db 01h, 02h, 03h, 04h, 05h` en `.data` y lo recorre con `SI`. Cada iteracion deja el elemento actual en `AL`.
 
 ```
 asmb new hola --template --cursor

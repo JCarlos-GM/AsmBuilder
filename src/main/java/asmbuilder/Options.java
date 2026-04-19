@@ -13,6 +13,10 @@ public class Options {
     private boolean switchCond = false;
     private boolean vars       = false;
 
+    // Templates genericos adicionales
+    private boolean whileLoop = false;
+    private boolean array     = false;
+
     // Templates especificos
     private boolean cursor  = false;
     private boolean screen  = false;
@@ -44,6 +48,12 @@ public class Options {
 
     public boolean isVars()                 { return vars; }
     public void    setVars(boolean v)       { this.vars = v; }
+
+    public boolean isWhileLoop()              { return whileLoop; }
+    public void    setWhileLoop(boolean v)    { this.whileLoop = v; }
+
+    public boolean isArray()                  { return array; }
+    public void    setArray(boolean v)        { this.array = v; }
 
     public boolean isCursor()               { return cursor; }
     public void    setCursor(boolean v)     { this.cursor = v; }
