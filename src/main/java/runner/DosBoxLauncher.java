@@ -45,7 +45,7 @@ public class DosBoxLauncher {
         }
     }
 
-    private static String findDosBox() {
+    static String findDosBox() {
         // Buscar en rutas conocidas
         for (String path : COMMON_PATHS) {
             if (new File(path).exists()) return path;

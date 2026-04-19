@@ -39,7 +39,7 @@ public class Compiler {
     }
 
     // Busca el ejecutable en el directorio del .asm y luego en <ASMBUILDER_HOME>/bin/
-    private static File findBinary(File dir, String name) {
+    static File findBinary(File dir, String name) {
         File local = new File(dir, name);
         if (local.exists()) return local;
 

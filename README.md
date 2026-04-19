@@ -8,14 +8,33 @@ Generador de plantillas `.asm` para TASM/DOS desde la terminal.
    ```
    mvn package
    ```
-2. Agregar la carpeta del proyecto al PATH de Windows para usar `asmb` desde cualquier lugar:
-   ```
-   C:\Users\CarlosGM\Documents\proyects\AsmBuilder
-   ```
-3. Colocar `tasm.exe` y `tlink.exe` en la carpeta `bin/` del proyecto:
+
+2. Colocar `tasm.exe` y `tlink.exe` en la carpeta `bin/` del proyecto:
    ```
    AsmBuilder\bin\tasm.exe
    AsmBuilder\bin\tlink.exe
+   ```
+
+3. Instalar DOSBox desde https://www.dosbox.com/download.php
+
+4. Agregar al PATH de Windows las siguientes rutas (ajusta segun donde instalaste cada cosa):
+
+   | Programa | Ruta ejemplo |
+   |----------|--------------|
+   | AsmBuilder | `C:\Users\TuUsuario\Documents\proyects\AsmBuilder` |
+   | DOSBox | `C:\Program Files (x86)\DOSBox-0.74-3` |
+
+   **Como agregar al PATH:**
+   - Abre **Inicio** → busca **"Variables de entorno"** → selecciona **"Editar las variables de entorno del sistema"**
+   - Clic en **Variables de entorno...**
+   - En **Variables del usuario**, selecciona **Path** → **Editar** → **Nuevo**
+   - Pega cada ruta y acepta
+   - Abre una **nueva terminal** para que los cambios tomen efecto
+
+5. Verificar que todo funciona:
+   ```
+   asmb help
+   dosbox --version
    ```
 
 ## Comandos
