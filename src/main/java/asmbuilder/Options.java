@@ -3,7 +3,9 @@ package asmbuilder;
 // Guarda todas las opciones que el usuario pasó por la terminal
 public class Options {
 
-    private String fileName = "output.asm";
+    private String  fileName     = "output.asm";
+    private String  outputPath   = null;   // null = directorio actual
+    private boolean createFolder = false;  // crea subcarpeta y copia tasm/tlink
 
     // Templates genericos
     private boolean print      = false;
@@ -28,8 +30,14 @@ public class Options {
     private boolean input   = false;
     private boolean rect    = false;
 
-    public String getFileName()             { return fileName; }
-    public void   setFileName(String n)     { this.fileName = n; }
+    public String getFileName()                   { return fileName; }
+    public void   setFileName(String n)           { this.fileName = n; }
+
+    public String getOutputPath()                 { return outputPath; }
+    public void   setOutputPath(String v)         { this.outputPath = v; }
+
+    public boolean isCreateFolder()               { return createFolder; }
+    public void    setCreateFolder(boolean v)     { this.createFolder = v; }
 
     public boolean isPrint()                { return print; }
     public void    setPrint(boolean v)      { this.print = v; }

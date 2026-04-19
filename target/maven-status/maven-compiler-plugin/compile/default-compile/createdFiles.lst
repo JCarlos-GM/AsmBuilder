@@ -1,5 +1,5 @@
 asmbuilder\TemplateBuilder.class
 asmbuilder\AsmFileWriter.class
-asmbuilder\Main.class
 asmbuilder\ArgParser.class
 asmbuilder\Options.class
+asmbuilder\Main.class

@@ -19,9 +19,20 @@ public class ArgParser {
         }
 
         for (; i < args.length; i++) {
+            // --path necesita leer el siguiente argumento como valor
+            if (args[i].equals("--path")) {
+                if (i + 1 >= args.length) {
+                    System.out.println("--path requiere una ruta. Ejemplo: --path C:\\mis_programas");
+                    return null;
+                }
+                options.setOutputPath(args[++i]);
+                continue;
+            }
+
             switch (args[i]) {
                 case "--template":  break; // indica modo plantilla, no necesita accion extra
                 case "--empty":     break; // plantilla base, es el comportamiento por defecto
+                case "--folder":    options.setCreateFolder(true); break;
                 case "--print":     options.setPrint(true);      break;
                 case "--for":       options.setForLoop(true);    break;
                 case "--dowhile":   options.setDoWhile(true);    break;

@@ -12,14 +12,50 @@ Generador de plantillas `.asm` para TASM/DOS desde la terminal.
    ```
    C:\Users\CarlosGM\Documents\proyects\AsmBuilder
    ```
+3. Colocar `tasm.exe` y `tlink.exe` en la carpeta `bin/` del proyecto:
+   ```
+   AsmBuilder\bin\tasm.exe
+   AsmBuilder\bin\tlink.exe
+   ```
 
-## Uso
+## Comandos
+
+| Comando | Descripcion |
+|---------|-------------|
+| `asmb new` | Crea un nuevo archivo `.asm` a partir de una plantilla |
+| `asmb run` | Compila y ejecuta un `.asm` con TASM/TLINK/DOSBox |
+| `asmb help` | Muestra la ayuda |
+
+---
+
+## asmb new
 
 ```
-asmb new <archivo> --template [opciones]
+asmb new <archivo> --template [flags de plantilla] [flags de salida]
 ```
 
 El archivo se crea en la carpeta donde ejecutas el comando. La extension `.asm` se agrega automaticamente si no la escribes.
+
+### Flags de salida
+
+| Flag | Descripcion |
+|------|-------------|
+| `--path <ruta>` | Guarda el archivo en la ruta indicada en lugar del directorio actual. Crea la carpeta si no existe. |
+| `--folder` | Crea una subcarpeta con el nombre del programa, guarda el `.asm` dentro y copia `tasm.exe` y `tlink.exe` automaticamente. |
+
+---
+
+## asmb run
+
+```
+asmb run <archivo.asm>
+```
+
+Ensambla el archivo con TASM, lo enlaza con TLINK y abre DOSBox automaticamente para ejecutarlo.
+
+Requisitos:
+- `tasm.exe` y `tlink.exe` en la misma carpeta del `.asm`, o en `bin/` del proyecto.
+- DOSBox instalado en el sistema.
 
 ---
 
@@ -76,6 +112,26 @@ Codigo de video, entrada, pila y cadenas.
 asmb new hola --template --empty
 ```
 Estructura base sin codigo, lista para completar.
+
+```
+asmb new hola --template --print --folder
+```
+Crea la carpeta `hola/`, genera `hola.asm` dentro y copia `tasm.exe` y `tlink.exe` junto al archivo.
+
+```
+asmb new hola --template --print --path C:\programas
+```
+Genera `hola.asm` en `C:\programas\` (la crea si no existe).
+
+```
+asmb new hola --template --for --print --folder
+```
+Genera plantilla for+print en su propia carpeta lista para compilar.
+
+```
+asmb run hola.asm
+```
+Compila `hola.asm` con TASM/TLINK y abre DOSBox para ejecutarlo.
 
 ```
 asmb new hola --template --print

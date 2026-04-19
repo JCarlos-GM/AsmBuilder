@@ -1,2 +1,2 @@
 @echo off
-java -jar "%~dp0target\asmbuilder.jar" %*
+java -DASMBUILDER_HOME="%~dp0" -jar "%~dp0target\asmbuilder.jar" %*
