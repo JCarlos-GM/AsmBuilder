@@ -37,6 +37,8 @@ Generador de plantillas `.asm` para TASM/DOS desde la terminal.
    dosbox --version
    ```
 
+---
+
 ## Comandos
 
 | Comando | Descripcion |
@@ -50,7 +52,7 @@ Generador de plantillas `.asm` para TASM/DOS desde la terminal.
 ## asmb new
 
 ```
-asmb new <archivo> --template [flags de plantilla] [flags de salida]
+asmb new <archivo> --template [flags de plantilla] [parametros] [flags de salida]
 ```
 
 El archivo se crea en la carpeta donde ejecutas el comando. La extension `.asm` se agrega automaticamente si no la escribes.
@@ -59,8 +61,21 @@ El archivo se crea en la carpeta donde ejecutas el comando. La extension `.asm` 
 
 | Flag | Descripcion |
 |------|-------------|
-| `--path <ruta>` | Guarda el archivo en la ruta indicada en lugar del directorio actual. Crea la carpeta si no existe. |
-| `--folder` | Crea una subcarpeta con el nombre del programa, guarda el `.asm` dentro y copia `tasm.exe` y `tlink.exe` automaticamente. |
+| `--path <ruta>` | Guarda el archivo en la ruta indicada. Crea la carpeta si no existe. |
+| `--folder` | Crea una subcarpeta con el nombre del programa y copia `tasm.exe` y `tlink.exe` automaticamente. |
+
+### Parametros de personalizacion
+
+| Parametro | Aplica a | Descripcion |
+|-----------|----------|-------------|
+| `--msg "texto"` | `--print`, `--input` | Texto del mensaje en `.data` |
+| `--count N` | `--for`, `--while`, `--dowhile` | Numero de iteraciones del ciclo |
+| `--row N` | `--cursor` | Fila del cursor (0-24) |
+| `--col N` | `--cursor` | Columna del cursor (0-79) |
+| `--str "texto"` | `--string`, `--upper` | Contenido de la cadena |
+| `--sec N` | `--delay` | Segundos de espera |
+| `--steps N` | `--diagonal` | Pasos del recorrido diagonal |
+| `--cycles N` | `--rectswap` | Repeticiones de la animacion |
 
 ---
 
@@ -82,17 +97,17 @@ Requisitos:
 
 Estructura y logica basica del programa.
 
-| Flag | Descripcion |
-|------|-------------|
-| `--empty` | Estructura base sin codigo. Solo `.data`, `.code` y salida del programa. |
-| `--print` | Declara `msg` en `.data` e imprime con `INT 21h` servicio `09h`. |
-| `--for` | Ciclo FOR con la instruccion `loop`. Usa `cx` como contador (10 repeticiones). |
-| `--while` | Ciclo WHILE: verifica `cx` contra `00h` antes de ejecutar. Si la condicion no se cumple, salta a `fin_mientras`. |
-| `--dowhile` | Ciclo DO-WHILE con `dec cx` + `jnz`. El cuerpo corre al menos una vez antes de verificar. |
-| `--if` | Condicional `if/else` con `cmp` y saltos `jz`/`jmp`. Incluye variable `opc` para la condicion. |
-| `--switch` | Switch con multiples `cmp` encadenados. Tres opciones, cada una con su mensaje. |
-| `--vars` | Declara `numero`, `mensaje` y `bandera` en `.data` con ejemplo de carga y modificacion. |
-| `--array` | Declara `arr` con 5 elementos en `.data` y los recorre con `SI` como puntero, elemento en `AL`. |
+| Flag | Parametros | Descripcion |
+|------|------------|-------------|
+| `--empty` | | Estructura base sin codigo. |
+| `--print` | `--msg` | Imprime un mensaje con `INT 21h` servicio `09h`. |
+| `--for` | `--count` | Ciclo FOR con `loop`. Usa `cx` como contador (default 10). |
+| `--while` | `--count` | Ciclo WHILE: verifica `cx` antes de ejecutar (default 10). |
+| `--dowhile` | `--count` | Ciclo DO-WHILE con `dec cx` + `jnz` (default 10). |
+| `--if` | | Condicional con `cmp`/`jz`/`jmp`. Incluye variable `opc`. |
+| `--switch` | | Switch con tres `cmp` encadenados y mensajes por opcion. |
+| `--vars` | | Variables `numero`, `mensaje` y `bandera` con ejemplo de acceso. |
+| `--array` | | Arreglo de 5 elementos recorrido con `SI` como puntero. |
 
 ---
 
@@ -100,172 +115,97 @@ Estructura y logica basica del programa.
 
 Codigo de video, entrada, pila y cadenas.
 
-| Flag | Descripcion |
-|------|-------------|
-| `--cursor` | Posiciona el cursor en una fila y columna con `INT 10h` servicio `02h`. |
-| `--screen` | Limpia la pantalla completa con `INT 10h` servicio `06h`. |
-| `--color` | Imprime un caracter con color usando `INT 10h` servicio `09h`. |
-| `--delay` | Espera 1 segundo con `INT 15h` servicio `86h` (tiempo en microsegundos). |
-| `--stack` | Mete dos valores a la pila con `push` y los saca con `pop`. |
-| `--string` | Recorre una cadena con el registro `SI` e imprime cada caracter en pantalla con posicion. |
-| `--upper` | Recorre una cadena y convierte cada letra minuscula a mayuscula restando `20h` del ASCII. |
-| `--input` | Imprime un mensaje y espera a que el usuario presione una tecla con `INT 21h` servicio `0Bh`. |
-| `--rect` | Dibuja un rectangulo con color de fondo usando `INT 10h` servicio `06h`. |
-| `--diagonal` | Limpia la pantalla a negro y mueve el cursor en diagonal imprimiendo `█` en amarillo con delay en cada paso. |
-| `--rectswap` | Dos rectangulos (rojo y blanco) que intercambian colores en un ciclo animado de 15 repeticiones. |
-| `--abc` | Imprime el abecedario en mayusculas letra por letra, una por linea, con delay de 1 segundo entre cada una. |
+| Flag | Parametros | Descripcion |
+|------|------------|-------------|
+| `--cursor` | `--row`, `--col` | Posiciona el cursor con `INT 10h` servicio `02h` (default fila 12, col 40). |
+| `--screen` | | Limpia la pantalla con `INT 10h` servicio `06h`. |
+| `--color` | | Imprime un caracter con color con `INT 10h` servicio `09h`. |
+| `--delay` | `--sec` | Espera N segundos con `INT 15h` servicio `86h` (default 1). |
+| `--stack` | | Mete dos valores a la pila con `push` y los saca con `pop`. |
+| `--string` | `--str` | Recorre una cadena con `SI` e imprime cada caracter con posicion. |
+| `--upper` | `--str` | Recorre una cadena y convierte minusculas a mayusculas. |
+| `--input` | `--msg` | Muestra mensaje y espera una tecla con `INT 21h` servicio `0Bh`. |
+| `--rect` | | Dibuja un rectangulo con color de fondo con `INT 10h` servicio `06h`. |
+| `--diagonal` | `--steps` | Pantalla negra con cursor diagonal dejando rastro amarillo (default 20 pasos). |
+| `--rectswap` | `--cycles` | Dos rectangulos que intercambian colores en animacion (default 15 ciclos). |
+| `--abc` | | Imprime el abecedario letra por letra, una por linea, con delay de 1 segundo. |
 
 ---
 
 ## Combinaciones
 
-| Flags | Resultado |
-|-------|-----------|
-| `--for --print` | Ciclo FOR que imprime `msg` en cada iteracion. |
-| `--dowhile --print` | Ciclo DO-WHILE que imprime `msg` en cada iteracion. |
-| `--cursor --delay` | Mueve el cursor al centro, espera 1 segundo y regresa al origen. |
-| `--screen --cursor` | Limpia la pantalla y posiciona el cursor en fila 0, columna 0. |
+| Flags | Parametros | Resultado |
+|-------|------------|-----------|
+| `--for --print` | `--count`, `--msg` | Ciclo FOR que imprime un mensaje en cada iteracion. |
+| `--dowhile --print` | `--count`, `--msg` | Ciclo DO-WHILE que imprime un mensaje en cada iteracion. |
+| `--cursor --delay` | `--row`, `--col`, `--sec` | Mueve el cursor, espera y regresa al origen. |
+| `--screen --cursor` | | Limpia la pantalla y posiciona el cursor en fila 0, columna 0. |
 
 ---
 
-## Ejemplos
+## Todos los comandos
 
+### Genericos
 ```
-asmb new hola --template --empty
+asmb new prueba --template --empty
+asmb new prueba --template --print
+asmb new prueba --template --print --msg "Tu mensaje"
+asmb new prueba --template --for
+asmb new prueba --template --for --count 5
+asmb new prueba --template --while
+asmb new prueba --template --while --count 5
+asmb new prueba --template --dowhile
+asmb new prueba --template --dowhile --count 5
+asmb new prueba --template --if
+asmb new prueba --template --switch
+asmb new prueba --template --vars
+asmb new prueba --template --array
 ```
-Estructura base sin codigo, lista para completar.
 
+### Especificos
 ```
-asmb new hola --template --print --folder
+asmb new prueba --template --cursor
+asmb new prueba --template --cursor --row 5 --col 20
+asmb new prueba --template --screen
+asmb new prueba --template --color
+asmb new prueba --template --delay
+asmb new prueba --template --delay --sec 3
+asmb new prueba --template --stack
+asmb new prueba --template --string
+asmb new prueba --template --string --str "mundo"
+asmb new prueba --template --upper
+asmb new prueba --template --upper --str "hola mundo"
+asmb new prueba --template --input
+asmb new prueba --template --input --msg "Escribe algo"
+asmb new prueba --template --rect
+asmb new prueba --template --diagonal
+asmb new prueba --template --diagonal --steps 10
+asmb new prueba --template --rectswap
+asmb new prueba --template --rectswap --cycles 5
+asmb new prueba --template --abc
 ```
-Crea la carpeta `hola/`, genera `hola.asm` dentro y copia `tasm.exe` y `tlink.exe` junto al archivo.
 
+### Combinaciones
 ```
-asmb new hola --template --print --path C:\programas
+asmb new prueba --template --for --print
+asmb new prueba --template --for --print --count 5
+asmb new prueba --template --for --print --msg "Iteracion" --count 3
+asmb new prueba --template --dowhile --print
+asmb new prueba --template --dowhile --print --count 5
+asmb new prueba --template --dowhile --print --msg "Vuelta" --count 3
+asmb new prueba --template --cursor --delay
+asmb new prueba --template --cursor --delay --row 5 --col 20 --sec 2
+asmb new prueba --template --screen --cursor
 ```
-Genera `hola.asm` en `C:\programas\` (la crea si no existe).
 
+### Flags de salida
 ```
-asmb new hola --template --for --print --folder
+asmb new prueba --template --print --folder
+asmb new prueba --template --print --path C:\programas
+asmb new prueba --template --for --print --folder
 ```
-Genera plantilla for+print en su propia carpeta lista para compilar.
 
+### Compilar y ejecutar
 ```
-asmb run hola.asm
+asmb run prueba.asm
 ```
-Compila `hola.asm` con TASM/TLINK y abre DOSBox para ejecutarlo.
-
-```
-asmb new hola --template --print
-```
-Imprime `Hola Mundo` una vez y termina.
-
-```
-asmb new hola --template --for
-```
-Ciclo de 10 repeticiones con el cuerpo vacio.
-
-```
-asmb new hola --template --for --print
-```
-Ciclo de 10 iteraciones que imprime `Hola Mundo` en cada una.
-
-```
-asmb new hola --template --dowhile --print
-```
-Ciclo DO-WHILE que imprime `Hola Mundo` en cada iteracion.
-
-```
-asmb new hola --template --if
-```
-Condicional que compara `opc` contra `01`. Salta a `verdadero` o `falso` segun el resultado.
-
-```
-asmb new hola --template --switch
-```
-Switch de tres opciones con `cmp` encadenados. Imprime un mensaje distinto segun `opc`.
-
-```
-asmb new hola --template --vars
-```
-Variables `numero`, `mensaje` y `bandera` en `.data` con ejemplo de acceso.
-
-```
-asmb new hola --template --while
-```
-Ciclo que verifica `cx` al inicio. Si `cx` es `00h` salta a `fin_mientras`, si no ejecuta el cuerpo, decrementa y repite.
-
-```
-asmb new hola --template --array
-```
-Declara `arr db 01h, 02h, 03h, 04h, 05h` en `.data` y lo recorre con `SI`. Cada iteracion deja el elemento actual en `AL`.
-
-```
-asmb new hola --template --cursor
-```
-Posiciona el cursor en fila 12, columna 40 (centro de pantalla).
-
-```
-asmb new hola --template --screen
-```
-Limpia la pantalla completa con fondo gris.
-
-```
-asmb new hola --template --color
-```
-Imprime el caracter `A` en amarillo con `INT 10h`.
-
-```
-asmb new hola --template --delay
-```
-Espera exactamente 1 segundo antes de continuar.
-
-```
-asmb new hola --template --stack
-```
-Mete `1234h` y `00ffh` a la pila y los saca con `pop`.
-
-```
-asmb new hola --template --string
-```
-Recorre la cadena `hola` con `SI` e imprime cada caracter en su posicion en pantalla.
-
-```
-asmb new hola --template --upper
-```
-Recorre `hola mundo` y la imprime en mayusculas (`HOLA MUNDO`).
-
-```
-asmb new hola --template --input
-```
-Imprime `Presiona una tecla` y espera hasta que el usuario presione algo.
-
-```
-asmb new hola --template --rect
-```
-Dibuja un rectangulo rojo en pantalla entre las coordenadas (5,5) y (15,25).
-
-```
-asmb new hola --template --cursor --delay
-```
-Mueve el cursor al centro, espera 1 segundo y lo regresa a la posicion 0,0.
-
-```
-asmb new hola --template --screen --cursor
-```
-Limpia la pantalla y deja el cursor en la esquina superior izquierda.
-
-```
-asmb new hola --template --diagonal
-```
-Pantalla negra con cursor moviendose en diagonal dejando rastro de bloques amarillos.
-
-```
-asmb new hola --template --rectswap
-```
-Animacion de dos rectangulos que intercambian colores entre rojo y blanco en bucle.
-
-```
-asmb new hola --template --abc
-```
-Imprime A, B, C... Z una letra por linea con 1 segundo de pausa entre cada una.

@@ -19,13 +19,50 @@ public class ArgParser {
         }
 
         for (; i < args.length; i++) {
-            // --path necesita leer el siguiente argumento como valor
+            // Flags que requieren el siguiente argumento como valor
             if (args[i].equals("--path")) {
-                if (i + 1 >= args.length) {
-                    System.out.println("--path requiere una ruta. Ejemplo: --path C:\\mis_programas");
-                    return null;
-                }
+                if (i + 1 >= args.length) { System.out.println("--path requiere una ruta."); return null; }
                 options.setOutputPath(args[++i]);
+                continue;
+            }
+            if (args[i].equals("--msg")) {
+                if (i + 1 >= args.length) { System.out.println("--msg requiere un texto."); return null; }
+                options.setCustomMsg(args[++i]);
+                continue;
+            }
+            if (args[i].equals("--str")) {
+                if (i + 1 >= args.length) { System.out.println("--str requiere un texto."); return null; }
+                options.setCustomStr(args[++i]);
+                continue;
+            }
+            if (args[i].equals("--count")) {
+                if (i + 1 >= args.length) { System.out.println("--count requiere un numero."); return null; }
+                options.setLoopCount(parseInt(args[++i], "--count"));
+                continue;
+            }
+            if (args[i].equals("--row")) {
+                if (i + 1 >= args.length) { System.out.println("--row requiere un numero."); return null; }
+                options.setCursorRow(parseInt(args[++i], "--row"));
+                continue;
+            }
+            if (args[i].equals("--col")) {
+                if (i + 1 >= args.length) { System.out.println("--col requiere un numero."); return null; }
+                options.setCursorCol(parseInt(args[++i], "--col"));
+                continue;
+            }
+            if (args[i].equals("--sec")) {
+                if (i + 1 >= args.length) { System.out.println("--sec requiere un numero."); return null; }
+                options.setDelaySecs(parseInt(args[++i], "--sec"));
+                continue;
+            }
+            if (args[i].equals("--steps")) {
+                if (i + 1 >= args.length) { System.out.println("--steps requiere un numero."); return null; }
+                options.setDiagonalSteps(parseInt(args[++i], "--steps"));
+                continue;
+            }
+            if (args[i].equals("--cycles")) {
+                if (i + 1 >= args.length) { System.out.println("--cycles requiere un numero."); return null; }
+                options.setRectSwapCycles(parseInt(args[++i], "--cycles"));
                 continue;
             }
 
@@ -60,5 +97,14 @@ public class ArgParser {
         }
 
         return options;
+    }
+
+    private static int parseInt(String value, String flag) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            System.out.println(flag + " requiere un numero entero. Se uso el valor por defecto.");
+            return -1;
+        }
     }
 }

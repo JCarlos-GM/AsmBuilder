@@ -7,6 +7,12 @@ public class TemplateBuilder {
     private static final String T1 = "    ";
     private static final String T2 = "        ";
 
+    // Convierte un entero a literal hex TASM (ej: 10 -> "0ah", 256 -> "100h")
+    private static String hex(int value) {
+        String h = Integer.toHexString(value) + "h";
+        return Character.isLetter(h.charAt(0)) ? "0" + h : h;
+    }
+
     private final Options options;
 
     public TemplateBuilder(Options options) {
@@ -36,7 +42,10 @@ public class TemplateBuilder {
         if (!hasDataVars())          data += l1("; Coloca aqui tus variables");
         if (options.isPrint()
          && !options.isIfCond()
-         && !options.isSwitchCond()) data += l1("msg db 'Hola Mundo$'");
+         && !options.isSwitchCond()) {
+            String msg = options.getCustomMsg() != null ? options.getCustomMsg() : "Hola Mundo";
+            data += l1("msg db '" + msg + "$'");
+        }
         if (options.isVars())        data += l1("numero  db 05")
                                           + l1("mensaje db 'Texto$'")
                                           + l1("bandera db 00");
@@ -46,10 +55,18 @@ public class TemplateBuilder {
                                           + l1("msg1 db 'Opcion uno$'")
                                           + l1("msg2 db 'Opcion dos$'")
                                           + l1("msg3 db 'Opcion no valida$'");
-        if (options.isString())      data += l1("cad db 'hola'")
-                                          + l1("col db 00h");
-        if (options.isUpper())       data += l1("cad db 'hola mundo$'");
-        if (options.isInput())       data += l1("msg db 'Presiona una tecla$'");
+        if (options.isString()) {
+            String s = options.getCustomStr() != null ? options.getCustomStr() : "hola";
+            data += l1("cad db '" + s + "'") + l1("col db 00h");
+        }
+        if (options.isUpper()) {
+            String s = options.getCustomStr() != null ? options.getCustomStr() + "$" : "hola mundo$";
+            data += l1("cad db '" + s + "'");
+        }
+        if (options.isInput()) {
+            String msg = options.getCustomMsg() != null ? options.getCustomMsg() : "Presiona una tecla";
+            data += l1("msg db '" + msg + "$'");
+        }
         if (options.isArray())       data += l1("arr db 01h, 02h, 03h, 04h, 05h");
 
         return data + NL;
@@ -110,17 +127,19 @@ public class TemplateBuilder {
     // --- Templates genericos ---
 
     private String buildForBody() {
+        String cx   = options.getLoopCount() > 0 ? hex(options.getLoopCount()) : "0ah";
         String body = options.isPrint()
             ? l2("mov ah, 09h") + l2("mov dx, offset msg") + l2("int 21h") + NL
             : l2("; Coloca aqui tu codigo") + NL;
 
-        return l1("mov cx, 0ah") + NL
+        return l1("mov cx, " + cx) + NL
              + l1("ciclo:") + body
              + l2("loop ciclo") + NL;
     }
 
     private String buildWhileBody() {
-        return l1("mov cx, 0ah") + NL
+        String cx = options.getLoopCount() > 0 ? hex(options.getLoopCount()) : "0ah";
+        return l1("mov cx, " + cx) + NL
              + l1("mientras:")
              + l2("cmp cx, 00h")
              + l2("jz  fin_mientras") + NL
@@ -131,11 +150,12 @@ public class TemplateBuilder {
     }
 
     private String buildDoWhileBody() {
+        String cx   = options.getLoopCount() > 0 ? hex(options.getLoopCount()) : "0ah";
         String body = options.isPrint()
             ? l2("mov ah, 09h") + l2("mov dx, offset msg") + l2("int 21h") + NL
             : l2("; Coloca aqui tu codigo") + NL;
 
-        return l1("mov cx, 0ah") + NL
+        return l1("mov cx, " + cx) + NL
              + l1("inicio:") + body
              + l2("dec cx")
              + l2("jnz inicio") + NL;
@@ -196,11 +216,13 @@ public class TemplateBuilder {
     // --- Templates especificos ---
 
     private String buildCursorBody() {
+        String row = options.getCursorRow() >= 0 ? String.valueOf(options.getCursorRow()) : "12";
+        String col = options.getCursorCol() >= 0 ? String.valueOf(options.getCursorCol()) : "40";
         return l1("; Posicionar el cursor")
              + l1("mov ah, 02h")
              + l1("mov bh, 00h")
-             + l1("mov dh, 12")
-             + l1("mov dl, 40")
+             + l1("mov dh, " + row)
+             + l1("mov dl, " + col)
              + l1("int 10h") + NL;
     }
 
@@ -251,10 +273,14 @@ public class TemplateBuilder {
     }
 
     private String buildDelayBody() {
-        return l1("; Esperar 1 segundo (1,000,000 microsegundos)")
+        int secs   = options.getDelaySecs() > 0 ? options.getDelaySecs() : 1;
+        long micros = (long) secs * 1_000_000;
+        String cx  = hex((int)(micros >> 16));
+        String dx  = hex((int)(micros & 0xFFFF));
+        return l1("; Esperar " + secs + " segundo(s)")
              + l1("mov ah, 86h")
-             + l1("mov cx, 000fh")
-             + l1("mov dx, 4240h")
+             + l1("mov cx, " + cx)
+             + l1("mov dx, " + dx)
              + l1("int 15h") + NL;
     }
 
@@ -267,9 +293,10 @@ public class TemplateBuilder {
     }
 
     private String buildStringBody() {
+        int len = options.getCustomStr() != null ? options.getCustomStr().length() : 4;
         return l1("; Apuntar SI al inicio de la cadena")
              + l1("mov si, offset cad") + NL
-             + l1("mov cx, 04h")
+             + l1("mov cx, " + hex(len))
              + l1("mov bh, 00h")
              + l1("mov bl, 0eh")
              + l1("mov dh, 05h") + NL
@@ -325,7 +352,7 @@ public class TemplateBuilder {
              + l1("; Posicion inicial")
              + l1("mov dh, 00h")
              + l1("mov dl, 00h")
-             + l1("mov cx, 14h") + NL
+             + l1("mov cx, " + (options.getDiagonalSteps() > 0 ? hex(options.getDiagonalSteps()) : "14h")) + NL
              + l1("ciclo:")
              + l2("inc dh")
              + l2("inc dl") + NL
@@ -349,7 +376,7 @@ public class TemplateBuilder {
         return l1("; Limpiar pantalla")
              + l1("mov ah, 06h") + l1("mov al, 00h") + l1("mov bh, 07h")
              + l1("mov cx, 0000h") + l1("mov dx, 184fh") + l1("int 10h") + NL
-             + l1("mov cx, 0fh") + NL
+             + l1("mov cx, " + (options.getRectSwapCycles() > 0 ? hex(options.getRectSwapCycles()) : "0fh")) + NL
              + l1("ciclo:")
              + l2("push cx") + NL
              + l2("; Primer rectangulo rojo")

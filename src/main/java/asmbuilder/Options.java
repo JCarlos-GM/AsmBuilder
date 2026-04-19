@@ -33,6 +33,16 @@ public class Options {
     private boolean rectSwap = false;
     private boolean alphabet = false;
 
+    // Parametros de personalizacion
+    private String customMsg        = null;   // --msg
+    private String customStr        = null;   // --str
+    private int    loopCount        = -1;     // --count
+    private int    cursorRow        = -1;     // --row
+    private int    cursorCol        = -1;     // --col
+    private int    delaySecs        = -1;     // --sec
+    private int    diagonalSteps    = -1;     // --steps
+    private int    rectSwapCycles   = -1;     // --cycles
+
     public String getFileName()                   { return fileName; }
     public void   setFileName(String n)           { this.fileName = n; }
 
@@ -101,4 +111,28 @@ public class Options {
 
     public boolean isAlphabet()             { return alphabet; }
     public void    setAlphabet(boolean v)   { this.alphabet = v; }
+
+    public String getCustomMsg()                  { return customMsg; }
+    public void   setCustomMsg(String v)          { this.customMsg = v; }
+
+    public String getCustomStr()                  { return customStr; }
+    public void   setCustomStr(String v)          { this.customStr = v; }
+
+    public int  getLoopCount()                    { return loopCount; }
+    public void setLoopCount(int v)               { this.loopCount = v; }
+
+    public int  getCursorRow()                    { return cursorRow; }
+    public void setCursorRow(int v)               { this.cursorRow = v; }
+
+    public int  getCursorCol()                    { return cursorCol; }
+    public void setCursorCol(int v)               { this.cursorCol = v; }
+
+    public int  getDelaySecs()                    { return delaySecs; }
+    public void setDelaySecs(int v)               { this.delaySecs = v; }
+
+    public int  getDiagonalSteps()                { return diagonalSteps; }
+    public void setDiagonalSteps(int v)           { this.diagonalSteps = v; }
+
+    public int  getRectSwapCycles()               { return rectSwapCycles; }
+    public void setRectSwapCycles(int v)          { this.rectSwapCycles = v; }
 }
