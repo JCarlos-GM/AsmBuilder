@@ -4,8 +4,8 @@ package asmbuilder;
 public class TemplateBuilder {
 
     private static final String NL = "\n";
-    private static final String T1 = "    "; // 4 espacios - codigo general
-    private static final String T2 = "        "; // 8 espacios - codigo dentro de etiqueta
+    private static final String T1 = "    ";
+    private static final String T2 = "        ";
 
     private final Options options;
 
@@ -13,119 +13,77 @@ public class TemplateBuilder {
         this.options = options;
     }
 
+    // Genera una linea con indentacion de 4 espacios
+    private String l1(String text) { return T1 + text + NL; }
+
+    // Genera una linea con indentacion de 8 espacios (dentro de etiqueta)
+    private String l2(String text) { return T2 + text + NL; }
+
     public String build() {
-        return buildHeader()
-             + buildDataSection()
-             + buildCodeSection();
+        return buildHeader() + buildDataSection() + buildCodeSection();
     }
 
-    // Encabezado: comentario, .model y .stack
     private String buildHeader() {
         return "; Tamaño del programa" + NL
              + ".model small"          + NL
              + ";"                     + NL
-             + ".stack 50h"            + NL
-             + NL;
+             + ".stack 50h"            + NL + NL;
     }
 
-    // .data con variables o comentario guia si no hay ninguna
     private String buildDataSection() {
-        StringBuilder data = new StringBuilder();
-        data.append(".data").append(NL);
+        String data = ".data" + NL;
 
-        if (!hasDataVars()) {
-            data.append(T1).append("; Coloca aqui tus variables").append(NL);
-        }
+        if (!hasDataVars())          data += l1("; Coloca aqui tus variables");
+        if (options.isPrint()
+         && !options.isIfCond()
+         && !options.isSwitchCond()) data += l1("msg db 'Hola Mundo$'");
+        if (options.isVars())        data += l1("numero  db 05")
+                                          + l1("mensaje db 'Texto$'")
+                                          + l1("bandera db 00");
+        if (options.isIfCond())      data += l1("opc db 01")
+                                          + l1("msg db 'Condicion verdadera$'");
+        if (options.isSwitchCond())  data += l1("opc  db 01")
+                                          + l1("msg1 db 'Opcion uno$'")
+                                          + l1("msg2 db 'Opcion dos$'")
+                                          + l1("msg3 db 'Opcion no valida$'");
+        if (options.isString())      data += l1("cad db 'hola'")
+                                          + l1("col db 00h");
+        if (options.isUpper())       data += l1("cad db 'hola mundo$'");
+        if (options.isInput())       data += l1("msg db 'Presiona una tecla$'");
+        if (options.isArray())       data += l1("arr db 01h, 02h, 03h, 04h, 05h");
 
-        if (options.isPrint() && !options.isIfCond() && !options.isSwitchCond()) {
-            data.append(T1).append("msg db 'Hola Mundo$'").append(NL);
-        }
-
-        if (options.isVars()) {
-            data.append(T1).append("numero  db 05").append(NL);
-            data.append(T1).append("mensaje db 'Texto$'").append(NL);
-            data.append(T1).append("bandera db 00").append(NL);
-        }
-
-        if (options.isIfCond()) {
-            data.append(T1).append("opc db 01").append(NL);
-            data.append(T1).append("msg db 'Condicion verdadera$'").append(NL);
-        }
-
-        if (options.isSwitchCond()) {
-            data.append(T1).append("opc  db 01").append(NL);
-            data.append(T1).append("msg1 db 'Opcion uno$'").append(NL);
-            data.append(T1).append("msg2 db 'Opcion dos$'").append(NL);
-            data.append(T1).append("msg3 db 'Opcion no valida$'").append(NL);
-        }
-
-        if (options.isString()) {
-            data.append(T1).append("cad db 'hola'").append(NL);
-            data.append(T1).append("col db 00h").append(NL);
-        }
-
-        if (options.isUpper()) {
-            data.append(T1).append("cad db 'hola mundo$'").append(NL);
-        }
-
-        if (options.isInput()) {
-            data.append(T1).append("msg db 'Presiona una tecla$'").append(NL);
-        }
-
-        if (options.isArray()) {
-            data.append(T1).append("arr db 01h, 02h, 03h, 04h, 05h").append(NL);
-        }
-
-        data.append(NL);
-        return data.toString();
+        return data + NL;
     }
 
-    // Devuelve true cuando hay variables declaradas en .data
     private boolean hasDataVars() {
         return options.isPrint() || options.isIfCond() || options.isSwitchCond()
-            || options.isVars() || options.isString() || options.isUpper()
+            || options.isVars()  || options.isString() || options.isUpper()
             || options.isInput() || options.isArray();
     }
 
-    // .code con inicializacion (si hay variables), cuerpo y salida
     private String buildCodeSection() {
-        StringBuilder code = new StringBuilder();
-        code.append(".code").append(NL);
+        String code = ".code" + NL;
 
-        // Solo inicializar ds cuando hay variables en .data
-        if (hasDataVars()) {
-            code.append(T1).append("mov ax, @data").append(NL);
-            code.append(T1).append("mov ds, ax").append(NL);
-        }
+        if (hasDataVars())
+            code += l1("mov ax, @data") + l1("mov ds, ax");
 
-        code.append(NL);
-        code.append(buildBody());
+        code += NL + buildBody();
 
-        // Algunos templates incluyen la salida en su propio cuerpo (con fin:)
-        if (!needsExitInBody()) {
-            code.append(T1).append("; Finalizar el programa").append(NL);
-            code.append(T1).append("mov ah, 4ch").append(NL);
-            code.append(T1).append("int 21h").append(NL);
-        }
+        if (!needsExitInBody())
+            code += l1("; Finalizar el programa") + l1("mov ah, 4ch") + l1("int 21h");
 
-        code.append("end").append(NL);
-
-        return code.toString();
+        return code + "end" + NL;
     }
 
-    // Templates que contienen su propia etiqueta fin: con la salida del programa
+    // Templates que manejan su propia salida dentro del cuerpo (tienen etiqueta fin:)
     private boolean needsExitInBody() {
         return options.isIfCond() || options.isSwitchCond()
             || options.isUpper() || options.isInput();
     }
 
-    // Decide que cuerpo generar segun los flags (combinaciones primero)
     private String buildBody() {
-        // Combinaciones especificas
-        if (options.isCursor() && options.isDelay()) return buildCursorDelayBody();
-        if (options.isScreen() && options.isCursor()) return buildScreenCursorBody();
-
-        // Templates individuales genericos
+        if (options.isCursor() && options.isDelay())   return buildCursorDelayBody();
+        if (options.isScreen() && options.isCursor())  return buildScreenCursorBody();
         if (options.isForLoop())    return buildForBody();
         if (options.isWhileLoop())  return buildWhileBody();
         if (options.isDoWhile())    return buildDoWhileBody();
@@ -134,8 +92,6 @@ public class TemplateBuilder {
         if (options.isPrint())      return buildPrintBody();
         if (options.isVars())       return buildVarsBody();
         if (options.isArray())      return buildArrayBody();
-
-        // Templates individuales especificos
         if (options.isCursor())     return buildCursorBody();
         if (options.isScreen())     return buildScreenBody();
         if (options.isColor())      return buildColorBody();
@@ -145,373 +101,217 @@ public class TemplateBuilder {
         if (options.isUpper())      return buildUpperBody();
         if (options.isInput())      return buildInputBody();
         if (options.isRect())       return buildRectBody();
-
-        // --empty: solo el comentario guia
-        return T1 + "; Coloca aqui tu codigo" + NL + NL;
+        return l1("; Coloca aqui tu codigo") + NL;
     }
 
     // --- Templates genericos ---
 
-    // Ciclo FOR usando la instruccion loop (decrementa cx automaticamente)
     private String buildForBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("mov cx, 0ah").append(NL).append(NL); // 10 repeticiones
+        String body = options.isPrint()
+            ? l2("mov ah, 09h") + l2("mov dx, offset msg") + l2("int 21h") + NL
+            : l2("; Coloca aqui tu codigo") + NL;
 
-        sb.append(T1).append("ciclo:").append(NL);
-
-        if (options.isPrint()) {
-            sb.append(T2).append("mov ah, 09h").append(NL);
-            sb.append(T2).append("mov dx, offset msg").append(NL);
-            sb.append(T2).append("int 21h").append(NL).append(NL);
-        } else {
-            sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
-        }
-
-        sb.append(T2).append("loop ciclo").append(NL).append(NL);
-        return sb.toString();
+        return l1("mov cx, 0ah") + NL
+             + l1("ciclo:") + body
+             + l2("loop ciclo") + NL;
     }
 
-    // Ciclo DO-WHILE: ejecuta al menos una vez, luego verifica cx con dec/jnz
-    private String buildDoWhileBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("mov cx, 0ah").append(NL).append(NL); // 10 repeticiones
-
-        sb.append(T1).append("inicio:").append(NL);
-
-        if (options.isPrint()) {
-            sb.append(T2).append("mov ah, 09h").append(NL);
-            sb.append(T2).append("mov dx, offset msg").append(NL);
-            sb.append(T2).append("int 21h").append(NL).append(NL);
-        } else {
-            sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
-        }
-
-        // dec + jnz es la forma de do-while: cuerpo primero, condicion al final
-        sb.append(T2).append("dec cx").append(NL);
-        sb.append(T2).append("jnz inicio").append(NL).append(NL);
-
-        return sb.toString();
-    }
-
-    // Ciclo WHILE: verifica la condicion antes de ejecutar el cuerpo
     private String buildWhileBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("mov cx, 0ah").append(NL).append(NL); // condicion inicial: 10
-
-        sb.append(T1).append("mientras:").append(NL);
-        sb.append(T2).append("cmp cx, 00h").append(NL);
-        sb.append(T2).append("jz  fin_mientras").append(NL).append(NL); // si cx es 0, salir
-
-        sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
-
-        sb.append(T2).append("dec cx").append(NL);
-        sb.append(T2).append("jmp mientras").append(NL).append(NL);
-
-        // fin_mientras es solo la etiqueta de salida, la salida del programa va despues
-        sb.append(T1).append("fin_mientras:").append(NL).append(NL);
-
-        return sb.toString();
+        return l1("mov cx, 0ah") + NL
+             + l1("mientras:")
+             + l2("cmp cx, 00h")
+             + l2("jz  fin_mientras") + NL
+             + l2("; Coloca aqui tu codigo") + NL
+             + l2("dec cx")
+             + l2("jmp mientras") + NL
+             + l1("fin_mientras:") + NL;
     }
 
-    // Arreglo con DUP en .data, recorrido con SI como puntero
-    private String buildArrayBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Apuntar SI al inicio del arreglo").append(NL);
-        sb.append(T1).append("mov si, offset arr").append(NL);
-        sb.append(T1).append("mov cx, 05h").append(NL).append(NL); // 5 elementos
+    private String buildDoWhileBody() {
+        String body = options.isPrint()
+            ? l2("mov ah, 09h") + l2("mov dx, offset msg") + l2("int 21h") + NL
+            : l2("; Coloca aqui tu codigo") + NL;
 
-        sb.append(T1).append("ciclo:").append(NL);
-        sb.append(T2).append("mov al, [si]").append(NL); // obtener elemento actual
-        sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
-        sb.append(T2).append("inc si").append(NL); // avanzar al siguiente elemento
-        sb.append(T2).append("loop ciclo").append(NL).append(NL);
-
-        return sb.toString();
+        return l1("mov cx, 0ah") + NL
+             + l1("inicio:") + body
+             + l2("dec cx")
+             + l2("jnz inicio") + NL;
     }
 
-    // Impresion simple con int 21h servicio 09h
     private String buildPrintBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Imprimir mensaje").append(NL);
-        sb.append(T1).append("mov ah, 09h").append(NL);
-        sb.append(T1).append("mov dx, offset msg").append(NL);
-        sb.append(T1).append("int 21h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Imprimir mensaje")
+             + l1("mov ah, 09h")
+             + l1("mov dx, offset msg")
+             + l1("int 21h") + NL;
     }
 
-    // IF: cmp + salto condicional jz/jnz
     private String buildIfBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Comparar y saltar segun condicion").append(NL);
-        sb.append(T1).append("cmp opc, 01").append(NL);
-        sb.append(T1).append("jz  verdadero").append(NL);
-        sb.append(T1).append("jmp falso").append(NL).append(NL);
-
-        sb.append(T1).append("verdadero:").append(NL);
-        sb.append(T2).append("mov ah, 09h").append(NL);
-        sb.append(T2).append("mov dx, offset msg").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-        sb.append(T2).append("jmp fin").append(NL).append(NL);
-
-        sb.append(T1).append("falso:").append(NL);
-        sb.append(T2).append("; Coloca aqui tu codigo").append(NL).append(NL);
-
-        sb.append(T1).append("fin:").append(NL);
-        sb.append(T2).append("; Finalizar el programa").append(NL);
-        sb.append(T2).append("mov ah, 4ch").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-
-        return sb.toString();
+        return l1("; Comparar y saltar segun condicion")
+             + l1("cmp opc, 01")
+             + l1("jz  verdadero")
+             + l1("jmp falso") + NL
+             + l1("verdadero:")
+             + l2("mov ah, 09h") + l2("mov dx, offset msg") + l2("int 21h")
+             + l2("jmp fin") + NL
+             + l1("falso:")
+             + l2("; Coloca aqui tu codigo") + NL
+             + l1("fin:")
+             + l2("; Finalizar el programa") + l2("mov ah, 4ch") + l2("int 21h");
     }
 
-    // SWITCH: multiples cmp encadenados, patron de cond4.asm
     private String buildSwitchBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Comparar opc contra cada opcion").append(NL);
-        sb.append(T1).append("cmp opc, 01").append(NL);
-        sb.append(T1).append("jz  opcion1").append(NL).append(NL);
-
-        sb.append(T1).append("cmp opc, 02").append(NL);
-        sb.append(T1).append("jz  opcion2").append(NL).append(NL);
-
-        sb.append(T1).append("jmp opcion3").append(NL).append(NL);
-
-        sb.append(T1).append("opcion1:").append(NL);
-        sb.append(T2).append("mov dx, offset msg1").append(NL);
-        sb.append(T2).append("jmp imprimir").append(NL).append(NL);
-
-        sb.append(T1).append("opcion2:").append(NL);
-        sb.append(T2).append("mov dx, offset msg2").append(NL);
-        sb.append(T2).append("jmp imprimir").append(NL).append(NL);
-
-        sb.append(T1).append("opcion3:").append(NL);
-        sb.append(T2).append("mov dx, offset msg3").append(NL).append(NL);
-
-        sb.append(T1).append("imprimir:").append(NL);
-        sb.append(T2).append("mov ah, 09h").append(NL);
-        sb.append(T2).append("int 21h").append(NL).append(NL);
-
-        sb.append(T1).append("fin:").append(NL);
-        sb.append(T2).append("; Finalizar el programa").append(NL);
-        sb.append(T2).append("mov ah, 4ch").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-
-        return sb.toString();
+        return l1("; Comparar opc contra cada opcion")
+             + l1("cmp opc, 01") + l1("jz  opcion1") + NL
+             + l1("cmp opc, 02") + l1("jz  opcion2") + NL
+             + l1("jmp opcion3") + NL
+             + l1("opcion1:") + l2("mov dx, offset msg1") + l2("jmp imprimir") + NL
+             + l1("opcion2:") + l2("mov dx, offset msg2") + l2("jmp imprimir") + NL
+             + l1("opcion3:") + l2("mov dx, offset msg3") + NL
+             + l1("imprimir:") + l2("mov ah, 09h") + l2("int 21h") + NL
+             + l1("fin:")
+             + l2("; Finalizar el programa") + l2("mov ah, 4ch") + l2("int 21h");
     }
 
-    // Variables: muestra como declarar y acceder a variables en .data
     private String buildVarsBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Cargar y modificar una variable").append(NL);
-        sb.append(T1).append("mov al, numero").append(NL);
-        sb.append(T1).append("inc al").append(NL);
-        sb.append(T1).append("mov numero, al").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Cargar y modificar una variable")
+             + l1("mov al, numero")
+             + l1("inc al")
+             + l1("mov numero, al") + NL;
+    }
+
+    private String buildArrayBody() {
+        return l1("; Apuntar SI al inicio del arreglo")
+             + l1("mov si, offset arr")
+             + l1("mov cx, 05h") + NL
+             + l1("ciclo:")
+             + l2("mov al, [si]")
+             + l2("; Coloca aqui tu codigo") + NL
+             + l2("inc si")
+             + l2("loop ciclo") + NL;
     }
 
     // --- Templates especificos ---
 
-    // Posicionar el cursor en una fila y columna especifica (INT 10h servicio 02h)
     private String buildCursorBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Posicionar el cursor").append(NL);
-        sb.append(T1).append("mov ah, 02h").append(NL);
-        sb.append(T1).append("mov bh, 00h").append(NL); // pagina siempre 0
-        sb.append(T1).append("mov dh, 12").append(NL);  // fila   (0-24)
-        sb.append(T1).append("mov dl, 40").append(NL);  // columna (0-79)
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Posicionar el cursor")
+             + l1("mov ah, 02h")
+             + l1("mov bh, 00h")
+             + l1("mov dh, 12")
+             + l1("mov dl, 40")
+             + l1("int 10h") + NL;
     }
 
-    // Limpiar la pantalla completa (INT 10h servicio 06h con AL=0)
     private String buildScreenBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Limpiar pantalla completa").append(NL);
-        sb.append(T1).append("mov ah, 06h").append(NL);
-        sb.append(T1).append("mov al, 00h").append(NL);
-        sb.append(T1).append("mov bh, 07h").append(NL);   // color de fondo (gris)
-        sb.append(T1).append("mov cx, 0000h").append(NL); // esquina superior izquierda
-        sb.append(T1).append("mov dx, 184fh").append(NL); // esquina inferior derecha
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Limpiar pantalla completa")
+             + l1("mov ah, 06h")
+             + l1("mov al, 00h")
+             + l1("mov bh, 07h")
+             + l1("mov cx, 0000h")
+             + l1("mov dx, 184fh")
+             + l1("int 10h") + NL;
     }
 
-    // Limpiar pantalla y luego posicionar el cursor (combinacion de cur.asm y cursor.asm)
     private String buildScreenCursorBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildScreenBody());
-
-        sb.append(T1).append("; Posicionar el cursor en fila 0, columna 0").append(NL);
-        sb.append(T1).append("mov ah, 02h").append(NL);
-        sb.append(T1).append("mov bh, 00h").append(NL);
-        sb.append(T1).append("mov dh, 00h").append(NL);
-        sb.append(T1).append("mov dl, 00h").append(NL);
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return buildScreenBody()
+             + l1("; Posicionar el cursor en fila 0, columna 0")
+             + l1("mov ah, 02h")
+             + l1("mov bh, 00h")
+             + l1("mov dh, 00h")
+             + l1("mov dl, 00h")
+             + l1("int 10h") + NL;
     }
 
-    // Posicionar cursor, esperar y regresar al origen (patron de cur2.asm)
     private String buildCursorDelayBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Posicionar el cursor al centro de la pantalla").append(NL);
-        sb.append(T1).append("mov ah, 02h").append(NL);
-        sb.append(T1).append("mov bh, 00h").append(NL);
-        sb.append(T1).append("mov dh, 12").append(NL);  // fila centro
-        sb.append(T1).append("mov dl, 40").append(NL);  // columna centro
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-
-        sb.append(buildDelayBody());
-
-        sb.append(T1).append("; Regresar el cursor al inicio").append(NL);
-        sb.append(T1).append("mov ah, 02h").append(NL);
-        sb.append(T1).append("mov bh, 00h").append(NL);
-        sb.append(T1).append("mov dh, 00h").append(NL);
-        sb.append(T1).append("mov dl, 00h").append(NL);
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Posicionar el cursor al centro de la pantalla")
+             + l1("mov ah, 02h")
+             + l1("mov bh, 00h")
+             + l1("mov dh, 12")
+             + l1("mov dl, 40")
+             + l1("int 10h") + NL
+             + buildDelayBody()
+             + l1("; Regresar el cursor al inicio")
+             + l1("mov ah, 02h")
+             + l1("mov bh, 00h")
+             + l1("mov dh, 00h")
+             + l1("mov dl, 00h")
+             + l1("int 10h") + NL;
     }
 
-    // Imprimir un caracter con color usando INT 10h (patron de code2.asm)
     private String buildColorBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Imprimir caracter con color").append(NL);
-        sb.append(T1).append("mov ah, 09h").append(NL);
-        sb.append(T1).append("mov al, 'A'").append(NL); // caracter a imprimir
-        sb.append(T1).append("mov bh, 00h").append(NL); // pagina 0
-        sb.append(T1).append("mov bl, 0eh").append(NL); // color (amarillo)
-        sb.append(T1).append("mov cx, 01h").append(NL); // repeticiones
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Imprimir caracter con color")
+             + l1("mov ah, 09h")
+             + l1("mov al, 'A'")
+             + l1("mov bh, 00h")
+             + l1("mov bl, 0eh")
+             + l1("mov cx, 01h")
+             + l1("int 10h") + NL;
     }
 
-    // Esperar 1 segundo con INT 15h (tiempo en microsegundos)
     private String buildDelayBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Esperar 1 segundo (1,000,000 microsegundos)").append(NL);
-        sb.append(T1).append("mov ah, 86h").append(NL);
-        sb.append(T1).append("mov cx, 000fh").append(NL); // parte alta
-        sb.append(T1).append("mov dx, 4240h").append(NL); // parte baja
-        sb.append(T1).append("int 15h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Esperar 1 segundo (1,000,000 microsegundos)")
+             + l1("mov ah, 86h")
+             + l1("mov cx, 000fh")
+             + l1("mov dx, 4240h")
+             + l1("int 15h") + NL;
     }
 
-    // Push y pop de la pila (patron de pila.asm)
     private String buildStackBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Meter valores en la pila").append(NL);
-        sb.append(T1).append("mov bx, 1234h").append(NL);
-        sb.append(T1).append("push bx").append(NL).append(NL);
-
-        sb.append(T1).append("mov bx, 00ffh").append(NL);
-        sb.append(T1).append("push bx").append(NL).append(NL);
-
-        sb.append(T1).append("; Sacar valores de la pila (orden inverso al que entraron)").append(NL);
-        sb.append(T1).append("pop ax").append(NL);
-        sb.append(T1).append("pop ax").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Meter valores en la pila")
+             + l1("mov bx, 1234h") + l1("push bx") + NL
+             + l1("mov bx, 00ffh") + l1("push bx") + NL
+             + l1("; Sacar valores de la pila (orden inverso al que entraron)")
+             + l1("pop ax") + l1("pop ax") + NL;
     }
 
-    // Recorrer una cadena e imprimir cada caracter con posicion (patron de strg2.asm)
     private String buildStringBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Apuntar SI al inicio de la cadena").append(NL);
-        sb.append(T1).append("mov si, offset cad").append(NL).append(NL);
-
-        sb.append(T1).append("mov cx, 04h").append(NL); // longitud de la cadena
-        sb.append(T1).append("mov bh, 00h").append(NL);
-        sb.append(T1).append("mov bl, 0eh").append(NL); // color amarillo
-        sb.append(T1).append("mov dh, 05h").append(NL).append(NL); // fila
-
-        sb.append(T1).append("ciclo:").append(NL);
-        sb.append(T2).append("push cx").append(NL).append(NL);
-
-        sb.append(T2).append("; Posicionar cursor en la columna actual").append(NL);
-        sb.append(T2).append("mov dl, col").append(NL);
-        sb.append(T2).append("mov ah, 02h").append(NL);
-        sb.append(T2).append("int 10h").append(NL);
-        sb.append(T2).append("inc col").append(NL).append(NL);
-
-        sb.append(T2).append("; Imprimir el caracter actual").append(NL);
-        sb.append(T2).append("mov ah, 09h").append(NL);
-        sb.append(T2).append("mov al, [si]").append(NL); // caracter al que apunta SI
-        sb.append(T2).append("mov cx, 01h").append(NL);
-        sb.append(T2).append("int 10h").append(NL);
-        sb.append(T2).append("inc si").append(NL).append(NL);
-
-        sb.append(T2).append("pop cx").append(NL);
-        sb.append(T1).append("loop ciclo").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Apuntar SI al inicio de la cadena")
+             + l1("mov si, offset cad") + NL
+             + l1("mov cx, 04h")
+             + l1("mov bh, 00h")
+             + l1("mov bl, 0eh")
+             + l1("mov dh, 05h") + NL
+             + l1("ciclo:")
+             + l2("push cx") + NL
+             + l2("; Posicionar cursor en la columna actual")
+             + l2("mov dl, col") + l2("mov ah, 02h") + l2("int 10h") + l2("inc col") + NL
+             + l2("; Imprimir el caracter actual")
+             + l2("mov ah, 09h") + l2("mov al, [si]") + l2("mov cx, 01h") + l2("int 10h")
+             + l2("inc si") + NL
+             + l2("pop cx")
+             + l1("loop ciclo") + NL;
     }
 
-    // Recorrer una cadena y convertir cada letra minuscula a mayuscula (patron de uperc.asm)
     private String buildUpperBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Apuntar SI al inicio de la cadena").append(NL);
-        sb.append(T1).append("mov si, offset cad").append(NL).append(NL);
-
-        sb.append(T1).append("siguiente:").append(NL);
-        sb.append(T2).append("mov al, [si]").append(NL);    // obtener caracter actual
-        sb.append(T2).append("cmp al, '$'").append(NL);     // fin de cadena
-        sb.append(T2).append("je  fin").append(NL).append(NL);
-
-        sb.append(T2).append("; Convertir a mayuscula solo si es minuscula (a-z)").append(NL);
-        sb.append(T2).append("cmp al, 'a'").append(NL);
-        sb.append(T2).append("jb  imprimir").append(NL);
-        sb.append(T2).append("cmp al, 'z'").append(NL);
-        sb.append(T2).append("ja  imprimir").append(NL);
-        sb.append(T2).append("sub al, 20h").append(NL).append(NL); // diferencia ASCII mayuscula/minuscula
-
-        sb.append(T1).append("imprimir:").append(NL);
-        sb.append(T2).append("mov dl, al").append(NL);
-        sb.append(T2).append("mov ah, 02h").append(NL);
-        sb.append(T2).append("int 21h").append(NL).append(NL);
-
-        sb.append(T2).append("inc si").append(NL);
-        sb.append(T2).append("jmp siguiente").append(NL).append(NL);
-
-        sb.append(T1).append("fin:").append(NL);
-        sb.append(T2).append("; Finalizar el programa").append(NL);
-        sb.append(T2).append("mov ah, 4ch").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-
-        return sb.toString();
+        return l1("; Apuntar SI al inicio de la cadena")
+             + l1("mov si, offset cad") + NL
+             + l1("siguiente:")
+             + l2("mov al, [si]") + l2("cmp al, '$'") + l2("je  fin") + NL
+             + l2("; Convertir a mayuscula solo si es minuscula (a-z)")
+             + l2("cmp al, 'a'") + l2("jb  imprimir")
+             + l2("cmp al, 'z'") + l2("ja  imprimir")
+             + l2("sub al, 20h") + NL
+             + l1("imprimir:")
+             + l2("mov dl, al") + l2("mov ah, 02h") + l2("int 21h") + NL
+             + l2("inc si") + l2("jmp siguiente") + NL
+             + l1("fin:")
+             + l2("; Finalizar el programa") + l2("mov ah, 4ch") + l2("int 21h");
     }
 
-    // Esperar a que el usuario presione una tecla (patron de tecla.asm)
     private String buildInputBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Imprimir mensaje de espera").append(NL);
-        sb.append(T1).append("mov ah, 09h").append(NL);
-        sb.append(T1).append("mov dx, offset msg").append(NL);
-        sb.append(T1).append("int 21h").append(NL).append(NL);
-
-        // 0Bh verifica si hay tecla disponible: devuelve FFh si hay, 00h si no
-        sb.append(T1).append("ciclo:").append(NL);
-        sb.append(T2).append("mov ah, 0bh").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-        sb.append(T2).append("cmp al, 00h").append(NL);
-        sb.append(T2).append("jz  ciclo").append(NL).append(NL);
-
-        sb.append(T1).append("fin:").append(NL);
-        sb.append(T2).append("; Finalizar el programa").append(NL);
-        sb.append(T2).append("mov ah, 4ch").append(NL);
-        sb.append(T2).append("int 21h").append(NL);
-
-        return sb.toString();
+        return l1("; Imprimir mensaje de espera")
+             + l1("mov ah, 09h") + l1("mov dx, offset msg") + l1("int 21h") + NL
+             + l1("ciclo:")
+             + l2("mov ah, 0bh") + l2("int 21h") + l2("cmp al, 00h") + l2("jz  ciclo") + NL
+             + l1("fin:")
+             + l2("; Finalizar el programa") + l2("mov ah, 4ch") + l2("int 21h");
     }
 
-    // Dibujar un rectangulo de color (INT 10h servicio 06h, patron de rectswap.asm)
     private String buildRectBody() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(T1).append("; Dibujar rectangulo con color de fondo").append(NL);
-        sb.append(T1).append("mov ah, 06h").append(NL);
-        sb.append(T1).append("mov al, 00h").append(NL);
-        sb.append(T1).append("mov bh, 40h").append(NL); // color de fondo (rojo)
-        sb.append(T1).append("mov ch, 05").append(NL);  // fila superior
-        sb.append(T1).append("mov cl, 05").append(NL);  // columna izquierda
-        sb.append(T1).append("mov dh, 15").append(NL);  // fila inferior
-        sb.append(T1).append("mov dl, 25").append(NL);  // columna derecha
-        sb.append(T1).append("int 10h").append(NL).append(NL);
-        return sb.toString();
+        return l1("; Dibujar rectangulo con color de fondo")
+             + l1("mov ah, 06h") + l1("mov al, 00h")
+             + l1("mov bh, 40h")
+             + l1("mov ch, 05") + l1("mov cl, 05")
+             + l1("mov dh, 15") + l1("mov dl, 25")
+             + l1("int 10h") + NL;
     }
 }
