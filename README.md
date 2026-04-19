@@ -254,3 +254,18 @@ Mueve el cursor al centro, espera 1 segundo y lo regresa a la posicion 0,0.
 asmb new hola --template --screen --cursor
 ```
 Limpia la pantalla y deja el cursor en la esquina superior izquierda.
+
+```
+asmb new hola --template --diagonal
+```
+Pantalla negra con cursor moviendose en diagonal dejando rastro de bloques amarillos.
+
+```
+asmb new hola --template --rectswap
+```
+Animacion de dos rectangulos que intercambian colores entre rojo y blanco en bucle.
+
+```
+asmb new hola --template --abc
+```
+Imprime A, B, C... Z una letra por linea con 1 segundo de pausa entre cada una.
