@@ -28,6 +28,15 @@ public class ArgParser {
                 case "--if":        options.setIfCond(true);     break;
                 case "--switch":    options.setSwitchCond(true); break;
                 case "--vars":      options.setVars(true);       break;
+                case "--cursor":    options.setCursor(true);     break;
+                case "--screen":    options.setScreen(true);     break;
+                case "--color":     options.setColor(true);      break;
+                case "--delay":     options.setDelay(true);      break;
+                case "--stack":     options.setStack(true);      break;
+                case "--string":    options.setString(true);     break;
+                case "--upper":     options.setUpper(true);      break;
+                case "--input":     options.setInput(true);      break;
+                case "--rect":      options.setRect(true);       break;
                 default:
                     System.out.println("Opcion desconocida: " + args[i]);
                     return null;

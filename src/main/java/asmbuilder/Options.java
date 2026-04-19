@@ -5,31 +5,70 @@ public class Options {
 
     private String fileName = "output.asm";
 
-    private boolean print    = false;
-    private boolean forLoop  = false;
-    private boolean doWhile  = false;
-    private boolean ifCond   = false;
+    // Templates genericos
+    private boolean print      = false;
+    private boolean forLoop    = false;
+    private boolean doWhile    = false;
+    private boolean ifCond     = false;
     private boolean switchCond = false;
-    private boolean vars     = false;
+    private boolean vars       = false;
 
-    public String getFileName()           { return fileName; }
-    public void   setFileName(String n)   { this.fileName = n; }
+    // Templates especificos
+    private boolean cursor  = false;
+    private boolean screen  = false;
+    private boolean color   = false;
+    private boolean delay   = false;
+    private boolean stack   = false;
+    private boolean string  = false;
+    private boolean upper   = false;
+    private boolean input   = false;
+    private boolean rect    = false;
 
-    public boolean isPrint()              { return print; }
-    public void    setPrint(boolean v)    { this.print = v; }
+    public String getFileName()             { return fileName; }
+    public void   setFileName(String n)     { this.fileName = n; }
 
-    public boolean isForLoop()            { return forLoop; }
-    public void    setForLoop(boolean v)  { this.forLoop = v; }
+    public boolean isPrint()                { return print; }
+    public void    setPrint(boolean v)      { this.print = v; }
 
-    public boolean isDoWhile()            { return doWhile; }
-    public void    setDoWhile(boolean v)  { this.doWhile = v; }
+    public boolean isForLoop()              { return forLoop; }
+    public void    setForLoop(boolean v)    { this.forLoop = v; }
 
-    public boolean isIfCond()             { return ifCond; }
-    public void    setIfCond(boolean v)   { this.ifCond = v; }
+    public boolean isDoWhile()              { return doWhile; }
+    public void    setDoWhile(boolean v)    { this.doWhile = v; }
 
-    public boolean isSwitchCond()         { return switchCond; }
-    public void    setSwitchCond(boolean v){ this.switchCond = v; }
+    public boolean isIfCond()               { return ifCond; }
+    public void    setIfCond(boolean v)     { this.ifCond = v; }
 
-    public boolean isVars()               { return vars; }
-    public void    setVars(boolean v)     { this.vars = v; }
+    public boolean isSwitchCond()           { return switchCond; }
+    public void    setSwitchCond(boolean v) { this.switchCond = v; }
+
+    public boolean isVars()                 { return vars; }
+    public void    setVars(boolean v)       { this.vars = v; }
+
+    public boolean isCursor()               { return cursor; }
+    public void    setCursor(boolean v)     { this.cursor = v; }
+
+    public boolean isScreen()               { return screen; }
+    public void    setScreen(boolean v)     { this.screen = v; }
+
+    public boolean isColor()                { return color; }
+    public void    setColor(boolean v)      { this.color = v; }
+
+    public boolean isDelay()                { return delay; }
+    public void    setDelay(boolean v)      { this.delay = v; }
+
+    public boolean isStack()                { return stack; }
+    public void    setStack(boolean v)      { this.stack = v; }
+
+    public boolean isString()               { return string; }
+    public void    setString(boolean v)     { this.string = v; }
+
+    public boolean isUpper()                { return upper; }
+    public void    setUpper(boolean v)      { this.upper = v; }
+
+    public boolean isInput()                { return input; }
+    public void    setInput(boolean v)      { this.input = v; }
+
+    public boolean isRect()                 { return rect; }
+    public void    setRect(boolean v)       { this.rect = v; }
 }
